@@ -126,8 +126,8 @@ MonoBehaviour:
   _heightSpawn: 3
   _lengthSquareSpawn: 9
   _multiplier: 0.5
-  _explosionForce: 6
-  _explosionRadius: 5
+  _explosionForce: 25
+  _explosionRadius: 12
 --- !u!54 &872927946189974693
 Rigidbody:
   m_ObjectHideFlags: 0

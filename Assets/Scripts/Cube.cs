@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -11,12 +12,10 @@ public class Cube : MonoBehaviour
     [SerializeReference] private int _heightSpawn = 3;
     [SerializeReference] private int _lengthSquareSpawn = 9;
     [SerializeReference] private float _multiplier = 0.5f;
-    [SerializeReference] private float _explosionForce = 10f;
-    [SerializeReference] private float _explosionRadius = 5f;
+    [SerializeReference] private float _explosionForce = 50f;
+    [SerializeReference] private float _explosionRadius = 15f;
 
-    //ƒобавить взрывную силу из центра исчезнувшего куба, котора€ разбросает только созданные им объекты.
-    //—делать невидимые ограждени€, чтобы кубики далеко не разлетались
-
+    private List<Cube> _spawnCubes;
     private float _splitChance = 1;
 
     private void Start()
@@ -31,8 +30,8 @@ public class Cube : MonoBehaviour
         if (randomNumber < _splitChance)
         {
             Spawn();
+            ExplodeSpawnedCubes();
             Destroy(gameObject);
-            ExplodeCube();
         }
         else
         {
@@ -52,9 +51,11 @@ public class Cube : MonoBehaviour
 
         for (int i = 0; i < numberCubes; i++)
         {
+            _spawnCubes = new List<Cube>(numberCubes);
             Vector3 spawnPosition = new Vector3(Random.Range(-_lengthSquareSpawn, _lengthSquareSpawn),
                 _heightSpawn, Random.Range(-_lengthSquareSpawn, _lengthSquareSpawn));
             Cube newCube = Instantiate(_prefab, spawnPosition, Quaternion.identity);
+            _spawnCubes.Add(newCube);
             newCube.transform.localScale *= _multiplier;
             newCube.TakeSplitChance(_splitChance);
             Rigidbody rigidbody = GetComponent<Rigidbody>();
@@ -77,21 +78,16 @@ public class Cube : MonoBehaviour
         }
     }
 
-    private void ExplodeCube()
+    private void ExplodeSpawnedCubes()
     {
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, _explosionRadius);
-
-        foreach (Collider hitCollider in hitColliders)
+        foreach (Cube cube in _spawnCubes)
         {
-            if (hitCollider.TryGetComponent(out Cube cube))
-            {
-                Rigidbody rigidbody = cube.GetComponent<Rigidbody>();
+            Rigidbody rigidbody = cube.GetComponent<Rigidbody>();
 
-                if (rigidbody != null)
-                {
-                    Vector3 direction = cube.transform.position - transform.position;
-                    rigidbody.AddForce(direction.normalized * _explosionForce, ForceMode.Impulse);
-                }
+            if (rigidbody != null)
+            {
+                Vector3 direction = cube.transform.position - transform.position;
+                rigidbody.AddForce(direction.normalized * _explosionForce, ForceMode.Impulse);
             }
         }
     }
