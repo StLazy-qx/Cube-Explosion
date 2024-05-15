@@ -4,30 +4,37 @@ using UnityEngine;
 public class CubeSpawner : MonoBehaviour
 {
     [SerializeField] private Cube _prefab;
+    [SerializeField] private CubeExplosion _explosion;
+    [SerializeField] private List<Cube> _beginCubes;
     [SerializeField] private int _minCubesSpawn = 2;
     [SerializeField] private int _maxCubesSpawn = 6;
-    [SerializeField] private int _heightSpawn = 3;
+    [SerializeField] private int _heightSpawn = 2;
     [SerializeField] private int _lengthSquareSpawn = 9;
-    [SerializeField] private Cube _cube;
 
-    private float _multiplier = 0.5f;
     private List<Cube> _spawnedCubes = new List<Cube>();
 
-    public List<Cube> GetSpawnedCubes => _spawnedCubes;
-
-    private void OnEnable()
+    private void Start()
     {
-        _cube.ClickOnObjectToSpawn += OnSpawn;
+        _spawnedCubes = _beginCubes;
+
+        foreach (var cube in _spawnedCubes)
+        {
+            cube.ClickOnObjectToSpawn += OnSpawn;
+        }
     }
 
     private void OnDisable()
     {
-        _cube.ClickOnObjectToSpawn -= OnSpawn;
+        foreach (var cube in _spawnedCubes)
+        {
+            cube.ClickOnObjectToSpawn -= OnSpawn;
+        }
     }
 
-    private void OnSpawn()
+    private void OnSpawn(Vector3 scale, float splitChance)
     {
         int numberCubes = Random.Range(_minCubesSpawn, _maxCubesSpawn + 1);
+        List<Cube> cubesForExplosion = new List<Cube>(numberCubes);
 
         for (int i = 0; i < numberCubes; i++)
         {
@@ -35,13 +42,17 @@ public class CubeSpawner : MonoBehaviour
                 _heightSpawn, Random.Range(-_lengthSquareSpawn, _lengthSquareSpawn));
             Cube newCube = Instantiate(_prefab, spawnPosition, Quaternion.identity);
             _spawnedCubes.Add(newCube);
-            newCube.transform.localScale *= _multiplier;
-            newCube.TakeSplitChance(newCube.SplitChance);
+            newCube.ClickOnObjectToSpawn += OnSpawn;
+            cubesForExplosion.Add(newCube);
+            newCube.Shrink(scale);
+            newCube.ChangeSplitChance(splitChance);
 
             if (newCube.TryGetComponent(out Rigidbody rigidbody))
             {
                 rigidbody.useGravity = true;
             }
         }
+
+        _explosion.GetListCubes(cubesForExplosion);
     }
 }

@@ -1,39 +1,56 @@
+using System.Collections.Generic;
 using UnityEngine;
-
-[RequireComponent(typeof(CubeSpawner))]
 
 public class CubeExplosion : MonoBehaviour
 {
-    [SerializeField] private float _explosionForce = 25f;
-    [SerializeField] private float _explosionRadius = 12f;
-    [SerializeField] private Cube _cube;
+    [SerializeField] private List<Cube> _beginCubes;
 
-    private CubeSpawner _spawner;
+    private float _explosionForce = 7f;
+    private float _explosionRadius = 8f;
+    private List<Cube> _explosionCubes;
 
     private void Start()
     {
-        _spawner = GetComponent<CubeSpawner>();
-    }
+        _explosionCubes = _beginCubes;
 
-    private void OnEnable()
-    {
-        _cube.ClickOnObjectToExplosion += OnExplosionSpawnedCubes;
+        foreach (var cube in _explosionCubes)
+        {
+            cube.ClickOnObjectToExplode += OnExplode;
+        }
     }
 
     private void OnDisable()
     {
-        _cube.ClickOnObjectToExplosion -= OnExplosionSpawnedCubes;
+        foreach (Cube cube in _explosionCubes)
+        {
+            cube.ClickOnObjectToExplode -= OnExplode;
+        }
     }
 
-    private void OnExplosionSpawnedCubes()
+    private void OnExplode(Cube target)
     {
-        foreach (Cube cube in _spawner.GetSpawnedCubes)
+        foreach (Cube cube in _explosionCubes)
         {
-            if (cube.TryGetComponent(out Rigidbody rigidbody))
+            float distance = Vector3.Distance(cube.transform.position, target.transform.position);
+
+            if (distance <= _explosionRadius)
             {
-                Vector3 direction = cube.transform.position - transform.position;
-                rigidbody.AddForce(direction.normalized * _explosionForce, ForceMode.Impulse);
+                if (cube.TryGetComponent(out Rigidbody rigidbody))
+                {
+                    Vector3 direction = cube.transform.position - target.transform.position;
+                    rigidbody.AddForce(direction.normalized * _explosionForce, ForceMode.Impulse);
+                }
             }
         }
+    }
+
+    public void GetListCubes(List<Cube> cubes)
+    {
+        foreach (Cube cube in cubes)
+        {
+            cube.ClickOnObjectToExplode += OnExplode;
+        }
+
+        _explosionCubes = cubes;
     }
 }
