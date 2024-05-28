@@ -12,8 +12,6 @@ public class Cube : MonoBehaviour
     public event UnityAction<Cube> ExplodeSpawnedCubes;
     public event UnityAction<Cube> ExplodeAllCubes;
 
-    public Transform Transform => transform;
-
     private void OnMouseUpAsButton()
     {
         float randomNumber = Random.Range(0f, 1f);
