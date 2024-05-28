@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,7 +9,8 @@ public class Cube : MonoBehaviour
     private float _splitChance = 1;
 
     public event UnityAction<Vector3, float> ClickOnObjectToSpawn;
-    public event UnityAction<Cube> ClickOnObjectToExplode;
+    public event UnityAction<Cube> ExplodeSpawnedCubes;
+    public event UnityAction<Cube> ExplodeAllCubes;
 
     public Transform Transform => transform;
 
@@ -21,11 +21,12 @@ public class Cube : MonoBehaviour
         if (randomNumber < _splitChance)
         {
             ClickOnObjectToSpawn?.Invoke(transform.localScale, _splitChance);
-            ClickOnObjectToExplode?.Invoke(this);
+            ExplodeSpawnedCubes?.Invoke(this);
             Destroy(gameObject);
         }
         else
         {
+            ExplodeAllCubes?.Invoke(this);
             Destroy(gameObject);
         }
     }
