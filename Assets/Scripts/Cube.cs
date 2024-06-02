@@ -8,9 +8,10 @@ public class Cube : MonoBehaviour
     private float _multiplier = 0.5f;
     private float _splitChance = 1;
 
-    public event UnityAction<Vector3, float> ClickOnObjectToSpawn;
-    public event UnityAction<Cube> ExplodeSpawnedCubes;
-    public event UnityAction<Cube> ExplodeAllCubes;
+    public event UnityAction<Cube> CubesSpawned;
+    public event UnityAction<Cube> AllCubesExploding;
+
+    public float SplitChance => _splitChance;
 
     private void OnMouseUpAsButton()
     {
@@ -18,24 +19,19 @@ public class Cube : MonoBehaviour
 
         if (randomNumber < _splitChance)
         {
-            ClickOnObjectToSpawn?.Invoke(transform.localScale, _splitChance);
-            ExplodeSpawnedCubes?.Invoke(this);
-            Destroy(gameObject);
+            CubesSpawned?.Invoke(this);
         }
         else
         {
-            ExplodeAllCubes?.Invoke(this);
-            Destroy(gameObject);
+            AllCubesExploding?.Invoke(this);
         }
+
+        Destroy(gameObject);
     }
 
-    public void ChangeSplitChance(float splitChance)
+    public void Init(Cube cube)
     {
-        _splitChance = splitChance * _multiplier;
-    }
-
-    public void Shrink(Vector3 originalScale)
-    {
-        transform.localScale = originalScale * _multiplier;
+        _splitChance = cube.SplitChance * _multiplier;
+        transform.localScale = cube.transform.localScale * _multiplier;
     }
 }

@@ -15,8 +15,8 @@ public class CubeExplosion : MonoBehaviour
 
         foreach (var cube in _explosionCubes)
         {
-            cube.ExplodeSpawnedCubes += OnExplodeSpawnedCubes;
-            cube.ExplodeAllCubes += OnExplodeCubes;
+            cube.CubesSpawned += OnExplodeSpawnedCubes;
+            cube.AllCubesExploding += OnExplodeCubes;
         }
     }
 
@@ -24,17 +24,17 @@ public class CubeExplosion : MonoBehaviour
     {
         foreach (Cube cube in _explosionCubes)
         {
-            cube.ExplodeSpawnedCubes -= OnExplodeSpawnedCubes;
-            cube.ExplodeAllCubes -= OnExplodeCubes;
+            cube.CubesSpawned -= OnExplodeSpawnedCubes;
+            cube.AllCubesExploding -= OnExplodeCubes;
         }
     }
 
-    public void GetListCubes(List<Cube> cubes)
+    public void ApplyCubes(List<Cube> cubes)
     {
         foreach (Cube cube in cubes)
         {
-            cube.ExplodeSpawnedCubes += OnExplodeSpawnedCubes;
-            cube.ExplodeAllCubes += OnExplodeCubes;
+            cube.CubesSpawned += OnExplodeSpawnedCubes;
+            cube.AllCubesExploding += OnExplodeCubes;
         }
 
         _explosionCubes = cubes;

@@ -19,7 +19,7 @@ public class CubeSpawner : MonoBehaviour
 
         foreach (var cube in _spawnedCubes)
         {
-            cube.ClickOnObjectToSpawn += OnSpawn;
+            cube.CubesSpawned += OnSpawn;
         }
     }
 
@@ -27,25 +27,22 @@ public class CubeSpawner : MonoBehaviour
     {
         foreach (var cube in _spawnedCubes)
         {
-            cube.ClickOnObjectToSpawn -= OnSpawn;
+            cube.CubesSpawned -= OnSpawn;
         }
     }
 
-    private void OnSpawn(Vector3 scale, float splitChance)
+    private void OnSpawn(Cube cube)
     {
         int numberCubes = Random.Range(_minCubesSpawn, _maxCubesSpawn + 1);
         List<Cube> cubesForExplosion = new List<Cube>(numberCubes);
 
         for (int i = 0; i < numberCubes; i++)
         {
-            Vector3 spawnPosition = new Vector3(Random.Range(-_lengthSquareSpawn, _lengthSquareSpawn),
-                _heightSpawn, Random.Range(-_lengthSquareSpawn, _lengthSquareSpawn));
-            Cube newCube = Instantiate(_prefab, spawnPosition, Quaternion.identity);
+            Cube newCube = Instantiate(_prefab, cube.transform.position, Quaternion.identity);
             _spawnedCubes.Add(newCube);
-            newCube.ClickOnObjectToSpawn += OnSpawn;
+            newCube.CubesSpawned += OnSpawn;
             cubesForExplosion.Add(newCube);
-            newCube.Shrink(scale);
-            newCube.ChangeSplitChance(splitChance);
+            newCube.Init(cube);
 
             if (newCube.TryGetComponent(out Rigidbody rigidbody))
             {
@@ -53,6 +50,6 @@ public class CubeSpawner : MonoBehaviour
             }
         }
 
-        _explosion.GetListCubes(cubesForExplosion);
+        _explosion.ApplyCubes(cubesForExplosion);
     }
 }
